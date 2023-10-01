@@ -32,7 +32,6 @@ const generateRandomString = function(length) {
 const stateKey = 'spotify_auth_state';
 
 app.get('/', function(req, res) {
-  console.log(__dirname);
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 // login page will redirect the user to the spotify login page
