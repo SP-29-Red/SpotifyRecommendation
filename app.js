@@ -4,6 +4,8 @@ const express = require('express'); // Express web server framework
 const querystring = require('querystring'); // Produces a URL query string from obj 
 const axios = require('axios');
 const { error } = require('console');
+const path = require('path');
+
 
 const app = express();
 const port = 8080;
@@ -29,6 +31,10 @@ const generateRandomString = function(length) {
 
 const stateKey = 'spotify_auth_state';
 
+app.get('/', function(req, res) {
+  console.log(__dirname);
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 // login page will redirect the user to the spotify login page
 
 app.get('/login', (req, res) => {
