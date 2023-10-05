@@ -1,0 +1,118 @@
+:root {
+    --sp-green: #1DB954;
+    --sp-dark: #121212;
+    --sp-light: #282828;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--sp-dark);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+#search-container {
+    background-color: var(--sp-light);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+#search-input {
+    width: 300px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+#search-button {
+    background-color: var(--sp-green);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#search-button:hover {
+    background-color: #1AA05A;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.header-left {
+    text-align: center;
+}
+
+.header-right {
+    text-align: right;
+}
+
+#title {
+    margin: 0;
+    font-size: 24px;
+}
+
+#user-info {
+    font-size: 16px;
+    margin-right: 20px;
+}
+
+/*Song information*/
+
+.song-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+.song-rectangle {
+    width: calc(33.33% - 20px); /* 3 songs horizontally, go to next line */
+    text-align: left;
+    border-radius: 10px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.song-rectangle .song-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.song-rectangle:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.song-rectangle:hover .song-details {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+
+.song-details {
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 8px 8px;
+    transition: background-color 0.3s ease;
+    transform-origin: center bottom;
+}
+
+.song-text {
+    padding: 10px;
+}
+
+.song-text p {
+    margin: 5px 0;
+}
