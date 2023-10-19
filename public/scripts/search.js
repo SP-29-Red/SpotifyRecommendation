@@ -5,7 +5,7 @@ const logoutButton = document.getElementById('logout-button');
 const songList = document.getElementById('song-list');
 
 let trackInfo;
-
+let username
 searchButton.addEventListener('click', () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm !== '') {
@@ -47,9 +47,20 @@ searchButton.addEventListener('click', () => {
     }
 });
 
+const getUser = () =>{
+    console.log('Getting UserName.....');
+    fetch("http://localhost:8080/getName")
+    .then(response => { return response.text();})
+    .then(data => {
+        console.log('User name ',data)
+        userSpan.textContent = data;
 
-const userName = "Justin Kong"; // replace with whatever spotify api grabbed for username
-userSpan.textContent = userName;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    })
+};
+getUser(); // replace with whatever spotify api grabbed for username
 
 logoutButton.addEventListener('click', () => {
     //logout stuff here

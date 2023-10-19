@@ -310,3 +310,8 @@ app.post('/call-rec', (req,res) => {
     res.send(error);
   });
 });
+
+app.get('/getName',(req,res) =>{
+    console.log("User name :" + username)
+    res.send(username);
+});
