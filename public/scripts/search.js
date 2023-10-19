@@ -4,16 +4,17 @@ const userSpan = document.getElementById('user');
 const logoutButton = document.getElementById('logout-button');
 const songList = document.getElementById('song-list');
 
+let trackInfo;
+
 searchButton.addEventListener('click', () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm !== '') {
-
-        // for this we're going to implement our own algorithim to search through songs, but for now this is for the general idea
-        const results = searchSongs(searchTerm);
-
         // Clear previous search results
-        songList.innerHTML = '';
-
+        songList.innerHTML = '';        
+        // for this we're going to implement our own algorithim to search through songs, but for now this is for the general idea
+        sendSong(searchTerm);
+        console.log(searchTerm);
+        getTracks();
         if (results.length > 0) {
             results.forEach((song) => {
                 const songItem = document.createElement('li');
@@ -35,7 +36,9 @@ searchButton.addEventListener('click', () => {
                     </div>
                 `;
                 songList.append(songItem);
-            });
+            }); 
+
+        
         } else {
             const noResultsItem = document.createElement('li');
             noResultsItem.textContent = 'Couldn\'t find any recommendations...';
@@ -43,6 +46,7 @@ searchButton.addEventListener('click', () => {
         }
     }
 });
+
 
 const userName = "Justin Kong"; // replace with whatever spotify api grabbed for username
 userSpan.textContent = userName;
@@ -73,4 +77,128 @@ function searchSongs(searchTerm) {
     ];
 
     return songs.filter(song => song.title.toLowerCase().includes(searchTerm.toLowerCase()));
-}
+};
+
+const sendSong = (songName) => {
+    console.log('Sending song name to server: '+ songName);
+    fetch("http://localhost:8080/song-name", {
+        method: 'POST',
+        headers:{
+            'Content-Type': 'text/plain'
+        },
+        body: songName
+    })
+    .then(response =>{
+        console.log("Data sent sucessfully");
+    })
+    .catch(error =>{
+        console.log('Error sending data: ',error);
+    });
+};
+
+const getTracks = () => {
+    console.log('Fetching Songs.....');
+    fetch("http://localhost:8080/tracks-info",{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data =>{
+        console.log('Data Recieved ', data);
+        trackInfo = data.tracks.items;
+
+        for (let i = 0; i < trackInfo.length; i++){
+            const trackName = trackInfo[i].name;
+            const albumName = trackInfo[i].album.name;
+            const artists = trackInfo[i].artists.map(artist => artist.name);
+            const releaseDate = trackInfo[i].album.release_date;
+            const trackUrl = trackInfo[i].external_urls.spotify;
+            const imageUrl = trackInfo[i].album.images[0].url;
+            const trackId = trackInfo[i].id;
+        
+            console.log(`Track Name: ${trackName}`);
+            console.log(`Album Name: ${albumName}`);
+            console.log(`Artists: ${artists.join(', ')}`);
+            console.log(`Release Date: ${releaseDate}`);
+            console.log(`Track URL: ${trackUrl}`);
+            console.log(`Image URL: ${imageUrl}`);
+            console.log(`Track ID: ${trackId}`);
+        }
+         // Gets the seed of the first track in result. 
+        // the number represents which track you want to get recs for
+        const seed = getTrackSeed(0);
+        console.log("The seed is " + seed);
+        sendSeed(seed);
+        getRecs();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    })
+};
+
+const getTrackSeed = (i) => {
+    if (trackInfo && trackInfo[i]){
+        return trackInfo[i].id;
+      
+    }
+    else {
+        console.error(`Invalid index: ${index}`);
+        return null;
+    }
+};
+
+const sendSeed = (trackSeed) => {
+    console.log('Sending Track seed to server: '+ trackSeed);
+    fetch("http://localhost:8080/track-seed", {
+        method: 'POST',
+        headers:{
+            'Content-Type': 'text/plain'
+        },
+        body: trackSeed
+    })
+    .then(response =>{
+        console.log("Data sent sucessfully");
+    })
+    .catch(error =>{
+        console.log('Error sending data: ',error);
+    });
+};
+
+const getRecs = () => {
+    console.log('Fetching Songs.....');
+    fetch("http://localhost:8080/call-rec",{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data =>{
+        console.log("----------Recommendation List --------------")
+        console.log('Data Recieved ', data);
+        recInfo = data.tracks;
+
+        for (let i = 0; i < recInfo.length; i++){
+            const trackName = recInfo[i].name;
+            const albumName = recInfo[i].album.name;
+            const artists = recInfo[i].artists.map(artist => artist.name);
+            const releaseDate = recInfo[i].album.release_date;
+            const trackUrl = recInfo[i].external_urls.spotify;
+            const imageUrl = recInfo[i].album.images[0].url;
+            const trackId = recInfo[i].id;
+        
+            console.log(`Track Name: ${trackName}`);
+            console.log(`Album Name: ${albumName}`);
+            console.log(`Artists: ${artists.join(', ')}`);
+            console.log(`Release Date: ${releaseDate}`);
+            console.log(`Track URL: ${trackUrl}`);
+            console.log(`Image URL: ${imageUrl}`);
+            console.log(`Track ID: ${trackId}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    })
+};
