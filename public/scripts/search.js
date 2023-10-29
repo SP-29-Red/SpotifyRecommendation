@@ -7,6 +7,14 @@ const songList = document.getElementById('song-list');
 let trackInfo;
 let username;
 let recsInfo;
+
+function convertDuration(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    return formattedTime;
+  }
 searchButton.addEventListener('click', async () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm !== '') {
@@ -20,26 +28,32 @@ searchButton.addEventListener('click', async () => {
         const seed = getTrackSeed(userPick); // Here we are going to get the trackSeed needed to get recommendations for spotify API
         await sendSeed(seed);
         await getRecs(seed);
-        showRecsInfo(recsInfo); //Here I'm printing out the recommendation info. This can be changed to put information on screen or taken out  
-
-        /*
-        if (results.length > 0) {
-            results.forEach((song) => {
+        
+        if (recsInfo.length > 0) {
+            recsInfo.forEach((song) => {
                 const songItem = document.createElement('li');
-
+                
+                const trackName = song.name;
+                const albumName = song.album.name;
+                const artists = song.artists.map(artist => artist.name);
+                const releaseDate = song.album.release_date;
+                const trackUrl = song.external_urls.spotify;
+                const imageUrl = song.album.images[0].url;
+                const duration = convertDuration(song.duration_ms);
+                
                 songItem.classList.add('song-rectangle');
-                songItem.style.backgroundImage = `url(${song.image})`;
+                songItem.style.backgroundImage = `url(${imageUrl})`;
                 songItem.addEventListener('click', () => {
-                    window.open(song.spotifyLink, '_blank');
+                    window.open(trackUrl, '_blank');
                 });
 
                 songItem.innerHTML = `
                     <div class="song-details">
                         <div class="song-text">
-                            <h1 class="song-artist">${song.artist} - ${song.title}</h1>
-                            <p class="song-album">Album: ${song.album}</p>
-                            <p class="song-genre">Genre: ${song.genre}</p>
-                            <p class="song-length">Length: ${song.length}</p>
+                            <h1 class="song-artist">${artists} - ${trackName}</h1>
+                            <p class="song-album">Album: ${albumName}</p>
+                            <p class="song-genre">Release Date: ${releaseDate}</p>
+                            <p class="song-length">Duration: ${duration}</p>
                         </div>
                     </div>
                 `;
@@ -52,7 +66,7 @@ searchButton.addEventListener('click', async () => {
             noResultsItem.textContent = 'Couldn\'t find any recommendations...';
             songList.append(noResultsItem);
         }
-        */
+        
     }
 });
 const getUser = async () =>{
@@ -74,32 +88,6 @@ getUser(); // replace with whatever spotify api grabbed for username
 logoutButton.addEventListener('click', () => {
     //logout stuff here
 });
-
-// just an example function to show what we'd need to grab for each songs and to display them
-/*
-function searchSongs(searchTerm) {
-    const songs = [
-        {
-            title: "Song 1",
-            artist: "Artist 1",
-            genre: "Genre 1",
-            length: "3:45",
-            image: "https://upload.wikimedia.org/wikipedia/en/7/70/Lil_Mosey_-_Certified_Hitmaker.png",
-            spotifyLink: "https://spotify.com/link",
-        },
-        {
-            title: "Song 2",
-            artist: "Artist 2",
-            genre: "Genre 2",
-            length: "4:20",
-            image: "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/04/e2/7d/04e27d0d-be47-784a-aa80-2dacf1f0d0c4/18UMGIM66997.rgb.jpg/1200x1200bb.jpg",
-            spotifyLink: "https://spotify.com/link",
-        },
-    ];
-
-    return songs.filter(song => song.title.toLowerCase().includes(searchTerm.toLowerCase()));
-};
-*/
 
 const sendSong = (songName) => {
     // Send the song Name the user entered to 'song-name' in app.js in order to fetch a list of songs
@@ -139,13 +127,51 @@ const getTracks = async () => {
     }
 };
 
-const getUserInput = async () => {
-    // corresponds to getTrackSeed().
-    // returns the final pick for the song she want recommended.
-    // This method could be used to show the trackInformation on the screen or be taken out and moved to showTrackInfo
-    const userInput = 0;
-    console.log("Here's the input: ", userInput);
-    return userInput;
+const openDialog = () => {
+    const modal = document.getElementById('dialog-modal');
+    modal.style.display = 'block';
+
+    const trackList = document.getElementById('track-list');
+    trackList.innerHTML = '';
+
+    trackInfo.forEach((track, index) => {
+        const trackItem = document.createElement('li');
+        trackItem.textContent = track.name;
+        trackItem.addEventListener('click', () => {
+            getUserInputCallback(index);
+            modal.style.display = 'none';
+        });
+
+        trackList.appendChild(trackItem);
+    });
+};
+const closeDialog = () => {
+    const modal = document.getElementById('dialog-modal');
+    modal.style.display = 'none';
+};
+
+const getUserInput = () => {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('dialog-modal');
+        const trackList = document.getElementById('track-list');
+
+        trackList.innerHTML = '';
+
+        trackInfo.forEach((track, index) => {
+            const trackItem = document.createElement('li');
+            const artistAndSong = `${track.artists[0].name} - ${track.name}`;
+            trackItem.textContent = artistAndSong;
+            trackItem.addEventListener('click', () => {
+                resolve(index); // return user selected input
+                modal.style.display = 'none';
+            });
+
+            trackList.appendChild(trackItem);
+        });
+
+        // Show the dialog
+        modal.style.display = 'block';
+    });
 };
 
 const getTrackSeed = (i) => {
